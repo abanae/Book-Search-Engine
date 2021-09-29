@@ -13,17 +13,15 @@ const SavedBooks = () => {
   // const [userData, setUserData] = useState({});
   const [removeBook] = useMutation(REMOVE_BOOK);
 
- const queryUser = () => useQuery(QUERY_ME, {
-  variables: {id: userId},
-});
+ const {loading, data} =  useQuery(QUERY_ME);
 
 
 
 // load user data from the token
 const profile = Auth.getProfile();
 const userId = profile.data._id
-// fetch user data from graphql
-const {loading, data} = queryUser();
+
+
 // create function that accepts the book's mongo _id value as param and deletes the book from the database
 const handleDeleteBook = async (bookId) => {
   const token = Auth.loggedIn() ? Auth.getToken() : null;
@@ -33,15 +31,14 @@ const handleDeleteBook = async (bookId) => {
   }
 
   try {
-    const response = await removeBook({
+    const { data} = await removeBook({
       variables: {id: userId, bookId: bookId}
     });
-    if (!response) {
+    if (!data) {
       throw new Error('something went wrong!');
     }
        // upon success, remove book's id 
     removeBookId(bookId)
-    queryUser();
   } catch (err) {
     console.error(err);
   }
